@@ -1,7 +1,12 @@
+require('dotenv').config();
+
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const path = require('path');
+const mongoose = require('mongoose');
+
+//controllers
 const userController = require('./controllers/userController');
 const restaurantController = require('./controllers/restaurantController');
 const collectionsController = require('./controllers/collectionsController');
@@ -21,16 +26,18 @@ app.use(bodyParser.json());
 //Routes
 app.use('/api', apiRouter);
 
+//sign up route - when user is successfully created, cookie is set and session is started
 app.post('/signup', userController.createUser, cookieController.setJWTCookie, sessionController.startSession, (req, res) => {
   // TODO: Finish this route and it's middleware
   if (res.locals.status === 300) return res.sendStatus(300);
-  res.sendStatus(200);
+  res.status(200).json(res.locals.session);
 });
 
+//login route - upon successful user verification, cookie is set and session is started
 app.post('/login', userController.verifyUser, cookieController.setJWTCookie, sessionController.startSession, (req, res) => {
   // TODO: Finish this route and it's middleware
   if (res.locals.status === 300) return res.sendStatus(300);
-  res.sendStatus(200);
+  res.status(200).json(res.locals.session);
 });
 
 // app.post('/addToWishlist', restaurantController.addRestaurant, collectionsController.addToWishlist, (req, res) => {
@@ -66,6 +73,10 @@ app.use((error, req, res, next) => {
   console.log(errorObj.log);
   return res.status(errorObj.status).json(errorObj.message);
 });
+
+//connect mongoDB
+mongoose.connect(process.env.MONGO_URI)
+  .then(console.log('connected to MongoDB'));
 
 app.listen(PORT, () => {
   console.log(`Server listening on port: ${PORT}`);

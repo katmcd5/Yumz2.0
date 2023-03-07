@@ -26,7 +26,6 @@ function App() {
     <div className="router">
 
       <Routes>
-        
         <Route path='/signup' element={<Signup />} />
         <Route path='/login' element={<Login />} />
         <Route path='/collection' element={<CollectionList />} />

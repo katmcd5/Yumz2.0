@@ -1,10 +1,12 @@
 const { query } = require('express');
+const bcrypt = require('bcryptjs');
+const SALT_WORK_FACTOR = 10;
 const db = require('../models/userModels.js');
 
 const createError = (errorInfo) => {
   const {method, type, error} = errorInfo;
   return {
-    log: `userController.${method} ${type}: ERROR: ${typeof error === 'object' ? JSON.stringify(error):error}`,
+    log: `userController.${method} ${type}: ERROR: ${typeof error === 'object' ? JSON.stringify(error) : error}`,
     message: {err: `error occurreed in userController.${method}. Check server logs for more details.`}
   };
 };
@@ -14,21 +16,31 @@ const userController = {};
 userController.verifyUser = async (req, res, next) => {
   try {
     //test: console-log params to make sure params are being sent over
-    const {email, password} = req.body;
+    const { email, password } = req.body;
 
     //test: ensure req.params are appropriately saved as consts
     // console.log('email: ', email,  'password : ', password)
+    
+    const queryResult = await db.query(`SELECT * FROM users WHERE email = '${email}';`);
 
-    const queryResult = await db.query(`SELECT * FROM users WHERE email = '${email}' AND password = '${password}'`);
-    console.log(queryResult.rows[0]);
-
-    // res.locals.userDetails = queryResult.rows;
-    if (queryResult.rows[0] === undefined) res.locals.status = 300;
-    return next();
+    if (queryResult.rows[0] === undefined) {
+      res.locals.status = 300;
+      return next();
+    }
+    else {
+      bcrypt.compare(password, queryResult.rows[0].password)
+        .then(result => {
+          if (!result) res.locals.status = 300;
+          else {
+            res.locals.user = queryResult.rows[0];
+          }
+          return next();
+        });
+    }
   }
   catch (error){
     next({
-      log: 'error running getUser middleware. ',
+      log: 'error running verifyUser middleware. ',
       message: 'an error occurred trying to find user'
     });
   }
@@ -47,33 +59,34 @@ userController.createUser = async (req, res, next) => {
       }));
     }
 
-    const checkEmail = await db.query(`SELECT * FROM users WHERE email = '${email}'`);
-    console.log('!!!!!!!! checkEmail : ', checkEmail );
+    const checkEmail = await db.query(`SELECT * FROM users WHERE email = '${email}';`);
+    // console.log('!!!!!!!! checkEmail : ', checkEmail );
     if (checkEmail.rowCount !== 0){
       return next({
         log: 'email already exists',
         message: {err: 'email already exists'}
       });
     }
+    
+    let hashedPW;
 
-    // CHECKS TO SEE IF NAME IS UNIQUE
-    // const checkName = await db.query(`SELECT * FROM users WHERE name = '${name}'`);
-    // if (checkName.rowCount !== 0){
-    //   return next({
-    //     log: 'name already exists',
-    //     message: {err: 'email already exists'}
-    //   });
-    // }
+    bcrypt.hash(password, SALT_WORK_FACTOR, (err, hash) => {
+      if (err) {
+        return next({log: 'error bcrypting password'});
+      }
+      hashedPW = hash;
+    });
     
     //creating the user instance in the database
     const created = await db.query(
       `INSERT INTO users (email, name, password) 
-      VALUES ('${email}', '${name}', '${password}')`
+      VALUES ('${email}', '${name}', '${hashedPW}')
+      RETURNING *;`
     );
     
     //getting that instance from the database and saving it to res.locals
-    const queryResult = await db.query(`SELECT * FROM users WHERE email = '${email}' AND password = '${password}'`);
-    res.locals.user = queryResult.rows[0];
+    // const queryResult = await db.query(`SELECT * FROM users WHERE email = '${email}' AND password = '${password}';`);
+    res.locals.user = created.rows[0];
     
     
     const userID = res.locals.user.user_id;
@@ -82,17 +95,17 @@ userController.createUser = async (req, res, next) => {
     //creating three new instances of Collections based on that user's userID
     await db.query(
       `INSERT INTO collection (user_id, name)
-      VALUES ('${userID}', 'favorites')`
+      VALUES ('${userID}', 'favorites');`
     );
 
     await db.query(
       `INSERT INTO collection (user_id, name)
-      VALUES ('${userID}', 'wishlist')`
+      VALUES ('${userID}', 'wishlist');`
     );
 
     await db.query(
       `INSERT INTO collection (user_id, name)
-      VALUES ('${userID}', 'reviews')`
+      VALUES ('${userID}', 'reviews');`
     );
 
     const userFavorites = await db.query(`SELECT * FROM users WHERE user_id = '${userID}' AND name = 'favorites'`);

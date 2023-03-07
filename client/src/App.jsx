@@ -1,17 +1,17 @@
 import React, { Component, useState, useEffect } from 'react';
 import { Route, BrowserRouter, Routes } from 'react-router-dom';
-import styles from '../stylesheets/styles.css';
-import { Login } from './Login.jsx';
-import { Signup } from './Signup.jsx';
-import { Reviews } from './Reviews.jsx';
-import { Favorites } from './Favorites.jsx';
-import { Wishlist } from './Wishlist.jsx';
-import Landing from './Landing.jsx';
-import { CollectionList } from './CollectionList.jsx';
-import DetailsModal from './DetailsModal.jsx';
-import NewRestaurant from './NewRestaurant.jsx';
+import styles from './stylesheets/styles.css';
+import { Login } from './pages/Login.jsx';
+import { Signup } from './pages/Signup.jsx';
+import { Reviews } from './pages/Reviews.jsx';
+import { Favorites } from './pages/Favorites.jsx';
+import { Wishlist } from './pages/Wishlist.jsx';
+import Landing from './pages/Landing.jsx';
+import { CollectionList } from './pages/CollectionList.jsx';
+import DetailsModal from './components/DetailsModal.jsx';
+import NewRestaurant from './pages/NewRestaurant.jsx';
 import {useNavigate} from 'react-router-dom';
-import helperFns from '../helperFns.js';
+import helperFns from './helperFns.js';
 
 
 

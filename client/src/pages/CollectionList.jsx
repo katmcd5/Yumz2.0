@@ -1,6 +1,6 @@
 import React, { Component, useState } from 'react';
 import  '../stylesheets/listview.css';
-import ListItem from './ListItem.jsx';
+import ListItem from '../components/ListItem.jsx';
 
 export const CollectionList = (props) => {
   

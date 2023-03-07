@@ -35,17 +35,15 @@ export const Login = () => {
       password
     });
     if (!signin) {
-      resetForm();
+      return resetForm();
     }
-    navigate('/');
-    
-    
-
+    return navigate('/');
   };
 
   const resetForm = () => {
     setEmail('');
     setPassword('');
+    alert('Wrong user info!');
   };
 
   return (
@@ -54,16 +52,16 @@ export const Login = () => {
       <form onSubmit={handleSubmit}>
         <label>
           <p>Email</p>
-          <input type="text" onChange={e => setEmail(e.target.value)} />
+          <input type="text" onChange={e => setEmail(e.target.value)} value = {email} />
         </label>
         <label>
           <p>Password</p>
-          <input type="password" onChange={e => setPassword(e.target.value)} />
+          <input type="password" onChange={e => setPassword(e.target.value)} value = {password} />
         </label>
         <div>
-        <label>
-          <button className="signupButton" type="button" onClick={e => navigate('/signup')}>No account yet?</button>
-        </label>
+          <label>
+            <button className="signupButton" type="button" onClick={e => navigate('/signup')}>No account yet?</button>
+          </label>
         </div>
         <div>
           <button className="submit" type="submit">Submit</button>

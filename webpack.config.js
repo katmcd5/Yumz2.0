@@ -6,15 +6,14 @@ module.exports = {
 
   output: {
     path: path.join(__dirname, '/client/dist'),
-    filename: 'bundle.js'
+    filename: 'bundle.js',
+    publicPath: '/'
   },
   devServer: {
-    static: {
-      directory: path.join(__dirname, '/client/dist'),
-      publicPath: '/'
-    },
+    historyApiFallback: true,
+    port: 8082,
     proxy: {
-      '/**': {
+      '/api/': {
         target: 'http://localhost:3000/',
         secure: false,
       },

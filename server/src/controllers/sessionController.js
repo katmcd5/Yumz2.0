@@ -52,7 +52,8 @@ sessionController.isLoggedIn = async (req, res, next) => {
 
     const session = await Session.findOne({cookieId: cookieId});
     if(!session){
-      return next(createError({
+      res.locals.status = 300;
+      next(createError({
         method: 'sessionController.isLoggedIn',
         type: 'session was not found!',
       }));

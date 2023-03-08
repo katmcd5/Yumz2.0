@@ -23,21 +23,31 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(bodyParser.json());
 
+
 //Routes
 app.use('/api', apiRouter);
 
 //sign up route - when user is successfully created, cookie is set and session is started
-app.post('/signup', userController.createUser, cookieController.setJWTCookie, sessionController.startSession, (req, res) => {
-  // TODO: Finish this route and it's middleware
-  if (res.locals.status === 300) return res.sendStatus(300);
-  res.status(200).json(res.locals.session);
-});
+app.post('/api/signup', userController.createUser,
+  cookieController.setJWTCookie,
+  sessionController.startSession,
+  (req, res) => {
+    if (res.locals.status === 300) return res.sendStatus(300);
+    res.status(200).json(res.locals.session);
+  });
 
 //login route - upon successful user verification, cookie is set and session is started
-app.post('/login', userController.verifyUser, cookieController.setJWTCookie, sessionController.startSession, (req, res) => {
-  // TODO: Finish this route and it's middleware
-  if (res.locals.status === 300) return res.sendStatus(300);
-  res.status(200).json(res.locals.session);
+app.post('/api/login', userController.verifyUser,
+  cookieController.setJWTCookie,
+  sessionController.startSession,
+  (req, res) => {
+    if (res.locals.status === 300) return res.sendStatus(300);
+    res.status(200).json(res.locals.session);
+  });
+
+//route for verifying sessions
+app.get('/api/session', sessionController.isLoggedIn, (req, res) => {
+  res.sendStatus(200);
 });
 
 // app.post('/addToWishlist', restaurantController.addRestaurant, collectionsController.addToWishlist, (req, res) => {

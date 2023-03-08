@@ -3,7 +3,7 @@ import styles from '../stylesheets/login.css';
 import {useNavigate} from 'react-router-dom';
 
 async function loginUser(credentials) {
-  return fetch('/login', {
+  return fetch('/api/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -37,7 +37,7 @@ export const Login = () => {
     if (!signin) {
       return resetForm();
     }
-    return navigate('/');
+    return navigate('/home');
   };
 
   const resetForm = () => {

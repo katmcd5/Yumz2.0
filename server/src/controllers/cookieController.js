@@ -16,6 +16,7 @@ cookieController.setJWTCookie = async (req, res, next) => {
     // console.log(req.body);
     // const jwtToken = createJWT(email);
     // res.locals.JWT = jwtToken;
+
     res.cookie('ssid', res.locals.user.user_id, {
       httpOnly: true
     });
@@ -23,7 +24,7 @@ cookieController.setJWTCookie = async (req, res, next) => {
   } 
   catch (error) {
     return next({
-      log: 'cookieController.setJWTCookie',
+      log: `cookieController.setJWTCookie error, ${error}`,
       message: { err: error }
     });
   }

@@ -12,6 +12,7 @@ import DetailsModal from './components/DetailsModal.jsx';
 import NewRestaurant from './pages/NewRestaurant.jsx';
 import {useNavigate} from 'react-router-dom';
 import helperFns from './helperFns.js';
+import { lazy, Suspense } from 'react';
 
 
 
@@ -27,9 +28,10 @@ function App() {
 
       <Routes>
         <Route path='/signup' element={<Signup />} />
-        <Route path='/login' element={<Login />} />
+        <Route path='/' element={<Login />} />
         <Route path='/collection' element={<CollectionList />} />
-        <Route path='/' element={<Landing />} />
+        <Route path='/home' element={<Landing />} />
+        {/* <Route element={<Landing/>} path='/home' exact /> */}
         <Route path='/reviews' element={<Reviews />} />
         <Route path='/favorites' element={<Favorites />} />
         <Route path='/wishlist' element={<Wishlist />} />

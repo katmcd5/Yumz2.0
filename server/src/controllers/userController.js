@@ -28,13 +28,16 @@ userController.verifyUser = async (req, res, next) => {
       return next();
     }
     else {
+      // console.log('HERE!!!!');
       bcrypt.compare(password, queryResult.rows[0].password)
         .then(result => {
+          // console.log('Here!');
           if (!result) res.locals.status = 300;
           else {
             res.locals.user = queryResult.rows[0];
+            // console.log('HERE',res.locals.user);
+            return next();
           }
-          return next();
         });
     }
   }
@@ -52,7 +55,8 @@ userController.createUser = async (req, res, next) => {
     console.log(req.body);
     // TODO: change from truthy to different logic later
     if(!name || !password || !email){
-      return next(createError({
+      res.locals.status = 300;
+      next(createError({
         method: 'createUser',
         type: 'all fields must be filled',
         error: 'all fields must be filled'
@@ -62,7 +66,8 @@ userController.createUser = async (req, res, next) => {
     const checkEmail = await db.query(`SELECT * FROM users WHERE email = '${email}';`);
     // console.log('!!!!!!!! checkEmail : ', checkEmail );
     if (checkEmail.rowCount !== 0){
-      return next({
+      res.locals.status = 300;
+      next({
         log: 'email already exists',
         message: {err: 'email already exists'}
       });
@@ -70,61 +75,66 @@ userController.createUser = async (req, res, next) => {
     
     let hashedPW;
 
-    bcrypt.hash(password, SALT_WORK_FACTOR, (err, hash) => {
-      if (err) {
-        return next({log: 'error bcrypting password'});
-      }
-      hashedPW = hash;
-    });
+    bcrypt.hash(password, SALT_WORK_FACTOR)
+      .then(async hash => {
+        hashedPW = hash;
+        // console.log('hashed pw', hashedPW);
+        //creating the user instance in the database
+        const created = await db.query(
+          `INSERT INTO users (email, name, password) 
+          VALUES ('${email}', '${name}', '${hashedPW}')
+          RETURNING *;`
+        );
+        
+        //getting that instance from the database and saving it to res.locals
+        // const queryResult = await db.query(`SELECT * FROM users WHERE email = '${email}' AND password = '${password}';`);
+        res.locals.user = created.rows[0];
+        console.log('user is:', res.locals.user);
+        
+        const userID = res.locals.user.user_id;
+        
     
-    //creating the user instance in the database
-    const created = await db.query(
-      `INSERT INTO users (email, name, password) 
-      VALUES ('${email}', '${name}', '${hashedPW}')
-      RETURNING *;`
-    );
+        //creating three new instances of Collections based on that user's userID
+        await db.query(
+          `INSERT INTO collection (user_id, name)
+          VALUES ('${userID}', 'favorites');`
+        );
     
-    //getting that instance from the database and saving it to res.locals
-    // const queryResult = await db.query(`SELECT * FROM users WHERE email = '${email}' AND password = '${password}';`);
-    res.locals.user = created.rows[0];
+        await db.query(
+          `INSERT INTO collection (user_id, name)
+          VALUES ('${userID}', 'wishlist');`
+        );
     
+        await db.query(
+          `INSERT INTO collection (user_id, name)
+          VALUES ('${userID}', 'reviews');`
+        );
     
-    const userID = res.locals.user.user_id;
+        const userFavorites = await db.query(`SELECT * FROM users WHERE user_id = '${userID}' AND name = 'favorites'`);
+        const userWishlist = await db.query(`SELECT * FROM users WHERE user_id = '${userID}' AND name = 'wishlist'`);
+        const userReviews = await db.query(`SELECT * FROM users WHERE user_id = '${userID}' AND name = 'reviews'`);
     
-
-    //creating three new instances of Collections based on that user's userID
-    await db.query(
-      `INSERT INTO collection (user_id, name)
-      VALUES ('${userID}', 'favorites');`
-    );
-
-    await db.query(
-      `INSERT INTO collection (user_id, name)
-      VALUES ('${userID}', 'wishlist');`
-    );
-
-    await db.query(
-      `INSERT INTO collection (user_id, name)
-      VALUES ('${userID}', 'reviews');`
-    );
-
-    const userFavorites = await db.query(`SELECT * FROM users WHERE user_id = '${userID}' AND name = 'favorites'`);
-    const userWishlist = await db.query(`SELECT * FROM users WHERE user_id = '${userID}' AND name = 'wishlist'`);
-    const userReviews = await db.query(`SELECT * FROM users WHERE user_id = '${userID}' AND name = 'reviews'`);
-
-    const collections = {
-      userFavorites: userFavorites,
-      userWishList: userWishlist,
-      userReviews: userReviews
-    };
-
-    res.locals.collections = collections;
+        const collections = {
+          userFavorites: userFavorites,
+          userWishList: userWishlist,
+          userReviews: userReviews
+        };
     
-    return next();
-
-  } catch(error){
+        res.locals.collections = collections;
+        
+        return next();
+      
+      })
+      .catch(error => {
+        return next({
+          log: 'userController bcrypt() ERROR:' + error,
+          message: {err: error}
+        });
+      });
+  } 
+  catch(error){
     return next({
-      log: 'userController.createUser() ERROR',
+      log: 'userController.createUser() ERROR' + error,
       message: {err: error}
     });
   }

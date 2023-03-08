@@ -14,6 +14,15 @@ const Landing = props => {
   //   navigate('/login');
     
   // });
+  useEffect(async () => {
+    const response = await fetch('/session');
+    if (response.ok){
+      return;
+    }
+    else{
+      return navigate('/');
+    }
+  }, []);
 
   return (
     <div id='landing'>

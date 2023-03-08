@@ -2,28 +2,27 @@ import React, { useState } from 'react';
 import styles from '../stylesheets/login.css';
 import {useNavigate} from 'react-router-dom';
 
+async function loginUser(credentials) {
+  return fetch('/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(credentials)
+  })
+    .then(res => {
+      if (res.status === 200) {
+        return res;
+      }
+      else if (res.status === 300) {
+        return false;
+      }
+    });
 
+}
 
 // This entire portion is used for react-router setup
 export const Login = () => {
-
-  async function loginUser(credentials) {
-    return fetch('/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(credentials)
-    })
-      .then(res => {
-        if (res.status === 200) {
-          navigate('/');
-        }
-        else if (res.status === 300) {
-          resetForm();
-        }
-      });
-  }
   const navigate = useNavigate();
   
   const [email, setEmail] = useState();
@@ -71,4 +70,3 @@ export const Login = () => {
     </div>
   );
 };
-

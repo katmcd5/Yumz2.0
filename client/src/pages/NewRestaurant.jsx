@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import RestaurantInfo from './RestaurantInfo.jsx';
-import RestaurantSearchResult from './RestaurantSearchResult.jsx';
-import RatingsTable from './RatingsTable.jsx';
+import RestaurantInfo from '../components/RestaurantInfo.jsx';
+import RestaurantSearchResult from '../components/RestaurantSearchResult.jsx';
+import RatingsTable from '../components/RatingsTable.jsx';
 import styles from '../stylesheets/new-restaurant.css';
 import detailStyles from '../stylesheets/details-modal.css';
-import RatingNotes from './RatingNotes.jsx';
+import RatingNotes from '../components/RatingNotes.jsx';
 import helperFns from '../helperFns.js';
 import { useNavigate } from 'react-router-dom';
 

@@ -35,12 +35,16 @@ export const Login = () => {
       email,
       password
     });
-    
+    if (!signin) {
+      return resetForm();
+    }
+    return navigate('/');
   };
 
   const resetForm = () => {
     setEmail('');
     setPassword('');
+    alert('Wrong user info!');
   };
 
   return (
@@ -49,11 +53,11 @@ export const Login = () => {
       <form onSubmit={handleSubmit}>
         <label>
           <p>Email</p>
-          <input type="text" onChange={e => setEmail(e.target.value)} />
+          <input type="text" onChange={e => setEmail(e.target.value)} value = {email} />
         </label>
         <label>
           <p>Password</p>
-          <input type="password" onChange={e => setPassword(e.target.value)} />
+          <input type="password" onChange={e => setPassword(e.target.value)} value = {password} />
         </label>
         <div>
           <label>

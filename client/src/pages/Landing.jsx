@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
-import VerticalNav from './VerticalNav.jsx';
-import MainNav from './MainNav.jsx';
-import Header from './Header.jsx';
+import VerticalNav from '../components/VerticalNav.jsx';
+import MainNav from '../components/MainNav.jsx';
+import Header from '../components/Header.jsx';
 import styles from '../stylesheets/landing.css';
 import {useNavigate} from 'react-router-dom';
 
